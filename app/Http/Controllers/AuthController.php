@@ -24,7 +24,7 @@ class AuthController extends Controller
                     'message'=>'invalid login credential'
                 ]);
             }
-            $token = $user->createToken("auth_token")->plainTextToken;
+            $token = $user->createToken("auth_token",["*"],now()->addHour(2))->plainTextToken;
             $response = [
                 "message"=>"user logged successfully",
                 "access_token"=>$token,

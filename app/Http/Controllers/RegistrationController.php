@@ -8,6 +8,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 
 class RegistrationController extends Controller
@@ -86,7 +87,25 @@ class RegistrationController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $registration = Registration::findOrFail($id);
+            return response()->json($registration, 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Registration not found',
+            ], 404);
+        } catch (QueryException $e) {
+            return response()->json([
+                'message' => 'Database error',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    
     }
 
     /**
@@ -94,7 +113,36 @@ class RegistrationController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try {
+            $registration = Registration::findOrFail($id);
+            $registration->user_id = $request->input('user_id', $registration->user_id);
+            $registration->training_id = $request->input('training_id', $registration->training_id);
+            $registration->status = $request->input('status', $registration->status);
+            $registration->save();
+
+            return response()->json([
+                'message' => 'Registration updated successfully',
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Registration not found',
+            ], 404);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation error',
+                'error' => $e->errors()
+            ], 400);
+        } catch (QueryException $e) {
+            return response()->json([
+                'message' => 'Database error',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -102,6 +150,28 @@ class RegistrationController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $registration = Registration::findOrFail($id);
+            $registration->delete();
+
+            return response()->json([
+                'message' => 'Registration deleted successfully',
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Registration not found',
+            ], 404);
+        } catch (QueryException $e) {
+            return response()->json([
+                'message' => 'Database error',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    
     }
 }

@@ -10,6 +10,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Repositories\UserRepository;
 use Exception;
+use App\DTO\UserDTO;
 
 class UserController extends Controller
 {
@@ -67,14 +68,21 @@ class UserController extends Controller
     public function store(Request $request)
     {
         try {
-            $user = new User();
-            $user->id = Str:: uuid();
-            $user->username = $request->input ('username');
-            $user->email = $request->input ('email');
-            $user->password = Hash::make($request->input ('password'));
-            $user->phoneNumber = $request->input ('phoneNumber');
-            $user->role = $request->input ('role');
-            $user->save();
+       $request->validate([
+                'username' => 'required',
+                'email' => 'required',
+                'phoneNumber' => 'required|string',
+                'password' => 'required|string',
+                'role' => 'required|string',
+            ]);
+            $userDTO =  new UserDTO(
+                $request->input('username'),
+                $request->input('email'),
+                $request->input('role'),
+                $request->input('phoneNumber'),
+                $request->input('password'),
+            );
+            $user = $this->userepository->create($userDTO);
             $token = $user->createToken("auth_token",["*"],now()->addHour(2))->plainTextToken;
             $response = [
                 "message"=>"user saved successfully",
@@ -82,8 +90,7 @@ class UserController extends Controller
                 "token_type"=>"Barrer",
                 "user_id"=>$user->id,
             ];
-        
-            return response()->json($response, 201);
+            return response()->json($response,201);
            
      
         }catch (ValidationException $e) {

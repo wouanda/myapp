@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Repositories;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 use App\DTO\UserDTO;
 use App\Models\User;
@@ -20,7 +22,15 @@ class UserRepository implements UserRepositoryInterface
 
     public function create(UserDTO $userDTO): User
     {
-        return User::create($userDTO->toArray());
+       $user = new User();
+        $user->id = Str:: uuid();
+        $user->username = $userDTO->username;
+        $user->email = $userDTO->email;
+        $user->password = Hash::make($userDTO->password);
+        $user->phoneNumber = $userDTO->phoneNumber;
+        $user->role = $userDTO->role;
+        $user->save();
+        return $user;
     }
 
     public function update(string $id, UserDTO $userDTO): ?User

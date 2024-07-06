@@ -24,7 +24,7 @@ class Registration extends Model
         return $this->belongsTo(User::class);
     }
     public function training(){
-        return $this->belongsTo(Training::class,);
+        return $this->belongsTo(User::class,);
     }
 }
 

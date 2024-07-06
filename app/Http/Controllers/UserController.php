@@ -8,15 +8,23 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-
+use App\Repositories\UserRepository;
+use Exception;
 
 class UserController extends Controller
 {
+
+    private UserRepository $userepository;
+
+    public function __construct(UserRepository $userepository)
+    {
+        $this->userepository = $userepository;
+    }
     
     public function index()
     {
         try {
-            $user = User::all();
+            $user = $this->userepository->getAll();
             return response()->json($user,200);
         }catch (QueryException $e) {
             return response()->json([
@@ -153,4 +161,3 @@ class UserController extends Controller
         }
     }
 }
-
